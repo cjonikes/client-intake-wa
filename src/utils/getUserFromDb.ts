@@ -1,7 +1,8 @@
 import axios from "axios"
-import { userCredentials } from "@/lib/types"
+import { UserCredentialsProps } from "@/lib/types"
+import { todo } from "node:test";
 
-async function getUserFromDb({ email, password}: userCredentials) {
+async function getUserFromDb({ email, password}: UserCredentialsProps) {
     try {
         const response = await axios.post(`/api/users/login`, {
             email,
@@ -9,7 +10,7 @@ async function getUserFromDb({ email, password}: userCredentials) {
         });
         return response.data || null;
     } catch (error) {
-        // console.error(error);
+        console.error(error);
         return null
     }
 }

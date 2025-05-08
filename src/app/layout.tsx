@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner"
 import "./globals.css";
+import { Check } from "lucide-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,21 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <Toaster position="bottom-right" />
+        <Toaster
+          icons={{
+            success: <Check color="#00b700" />,
+          }}
+          theme="dark"
+          toastOptions={{
+            unstyled: false,
+            classNames: {
+              error: "bg-red-400",
+              success: "text-black font-semibold",
+              warning: "text-yellow-400",
+              info: "bg-blue-400",
+            },
+          }}
+        />
       </body>
     </html>
   );
