@@ -15,7 +15,7 @@ CREATE TABLE "public"."user" (
     userid      serial NOT NULL         ,
     userinfoid  integer NOT NULL        ,
     email       varchar(255) NOT NULL   ,
-    username  varchar(255) NOT NULL     ,
+    username    varchar(255) NOT NULL   ,
     passwd      varchar(255) NOT NULL   ,
     usertype    varchar DEFAULT 'Employee'::character varying NOT NULL,
     lastlogin   date NOT NULL           ,
@@ -23,6 +23,13 @@ CREATE TABLE "public"."user" (
     CONSTRAINT user_id_pkey PRIMARY KEY( userid ),
     CONSTRAINT unique_email_address UNIQUE ( email ),
     CONSTRAINT user_info_id_fkey FOREIGN KEY ( userinfoid ) REFERENCES "public".userinfo( userinfoid )
+);
+
+CREATE TABLE "public".activesessions (
+    sessionid   varchar(128)    PRIMARY KEY    ,
+    userid      integer         NOT NULL       ,
+    createdat   TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT user_session_id_fkey FOREIGN KEY ( userid ) REFERENCES "public"."user"( userid )
 );
 
 CREATE TABLE "public".householdmembers (
@@ -55,7 +62,7 @@ CREATE TABLE "public".addressinfo(
 	postalcode      varchar(20)     NOT NULL    ,
     CONSTRAINT address_info_id_pkey PRIMARY KEY ( addressid ),
     CONSTRAINT fkey_client_info_id_fkey FOREIGN KEY ( clientid ) REFERENCES "public".clientinfo( clientinfoid ) ON DELETE CASCADE
-)
+);
 
 CREATE TABLE "public".household (
     clientinfoid      integer     NOT NULL    ,
