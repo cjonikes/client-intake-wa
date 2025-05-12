@@ -4,8 +4,8 @@ export interface UserCredentialsProps {
 };
 
 export interface UserInfo {
-    sessionId: string,
-    type: string,
+    userId:  Number,
+    usertype: string,
     username: string,
     lastLogin: string,
 };

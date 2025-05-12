@@ -7,11 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getUserFromDb } from "@/utils/getUserFromDb"
 import { toast } from "sonner"
+import { useAppContext } from "@/components/context/AppContext"
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { setUserInfo, userInfo } = useAppContext();
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
@@ -27,7 +29,17 @@ export function LoginForm({
                 const response = await getUserFromDb({email, password});
                 if (response) {
                   toast.success("Login Successful");
-                  
+                  setUserInfo({
+                    // @ts-ignore
+                    userid: response.userid,
+                    // @ts-ignore
+                    usertype: response.usertype,
+                    // @ts-ignore
+                    username: response.username,
+                    // @ts-ignore
+                    lastLogin: response.lastLoging,
+                  });
+
                 } else {
                   toast.error("User not Found")
                 }
