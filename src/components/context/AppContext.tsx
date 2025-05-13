@@ -10,6 +10,7 @@ import {
     useState,
   } from "react";
 import { LoginForm } from "../login/loginForm";
+import { logoutUserFromSession } from "@/utils/logoutUserFromSession";
 import { UserInfo } from "@/lib/types";
 
 type AppContextType = {
@@ -25,9 +26,12 @@ export const AppContextProvider = ({ children }: { children: ReactNode}) => {
    
     const router = useRouter();
 
-    function logout() {
+    async function logout() {
         setUserInfo(null);
-        router.push("/login");
+        const logout = await logoutUserFromSession();
+        if(logout) {
+            router.push("/login");
+        }
     }
 
     return (

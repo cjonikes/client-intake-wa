@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 
 
-export async function POST(request: Request) {
+export async function POST() {
 
   try {
-    const userid = await request.json();
+    // const userid = await request.json();
     const cookieStore = await cookies();
     const uuidCookie = cookieStore.get('sessionId')?.value;
     
@@ -28,8 +28,6 @@ export async function POST(request: Request) {
         "status": "succeed"
     })
 
-    console.log(result)
-
     cookieStore.set('sessionId', String(uuidCookie), {maxAge: 0});
 
     response.cookies.set('sessionId', "null", {
@@ -41,7 +39,7 @@ export async function POST(request: Request) {
 
     } catch (error) {
         return NextResponse.json(
-        { error: `Server error ${error}` },
+        { error: `Server error here ${error}` },
         { status: 500 }
         );
     }

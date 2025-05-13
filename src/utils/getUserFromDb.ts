@@ -1,6 +1,5 @@
 import axios from "axios"
 import { UserCredentialsProps } from "@/lib/types"
-import { todo } from "node:test";
 
 async function getUserFromDb({ email, password}: UserCredentialsProps) {
     try {
