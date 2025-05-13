@@ -17,7 +17,29 @@ export async function POST() {
             { status: 401 }
             );
     }
+
     const result = await query(
+        `
+        SELECT userid
+        FROM activesessions
+        WHERE sessionid = $1;
+        `,
+        [ uuidCookie ]
+    )
+
+    const userid = result.rows[0]?.userid;
+
+    await query(
+        `
+        UPDATE "public"."user"
+        SET lastlogin =  $1
+        WHERE userid = $2;
+        `,
+        [ new Date(), userid ]
+    )
+
+
+    await query(
         `
         DELETE FROM activesessions
         WHERE sessionid = $1;

@@ -20,7 +20,7 @@ CREATE TABLE "public"."user" (
     username    varchar(255) NOT NULL,
     passwd      varchar(255) NOT NULL,
     usertype    varchar DEFAULT 'Employee'::character varying NOT NULL,
-    lastlogin   date NOT NULL,
+    lastlogin   TIMESTAMPZ NOT NULL DEFAULT NOW(),
     isActive    BOOLEAN DEFAULT TRUE NOT NULL,
     CONSTRAINT user_id_pkey PRIMARY KEY( userid ),
     CONSTRAINT unique_email_address UNIQUE ( email ),
@@ -32,7 +32,7 @@ CREATE SEQUENCE public.user_userid_seq START 1;
 CREATE TABLE "public".activesessions (
     sessionid   varchar(128)    PRIMARY KEY,
     userid      integer         NOT NULL,
-    createdat   TIMESTAMP NOT NULL DEFAULT NOW(),
+    createdat   TIMESTAMPZ NOT NULL DEFAULT NOW(),
     CONSTRAINT user_session_id_fkey FOREIGN KEY ( userid ) REFERENCES "public"."user"( userid )
 );
 
