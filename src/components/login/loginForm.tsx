@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { getUserFromDb } from "@/utils/getUserFromDb"
 import { toast } from "sonner"
-import { useAppContext } from "@/components/context/AppContext"
+// import { useAppContext } from "@/components/context/AppContext"
 import { useRouter } from "next/navigation"
 
 export function LoginForm({
@@ -15,7 +15,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter()
-  const { setUserInfo, userInfo } = useAppContext();
+  // const { setUserInfo, userInfo } = useAppContext();
   return (    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10">
       <div className="w-full max-w-sm md:max-w-3xl">
           <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -32,16 +32,16 @@ export function LoginForm({
                 const response = await getUserFromDb({email, password});
                 if (response) {
                   toast.success("Login Successful");
-                  setUserInfo({
-                    // @ts-ignore
-                    userid: response.userid,
-                    // @ts-ignore
-                    usertype: response.usertype,
-                    // @ts-ignore
-                    username: response.username,
-                    // @ts-ignore
-                    lastLogin: response.lastLoging,
-                  });
+                  // setUserInfo({
+                  //   // @ts-ignore
+                  //   userid: response.userid,
+                  //   // @ts-ignore
+                  //   usertype: response.usertype,
+                  //   // @ts-ignore
+                  //   username: response.username,
+                  //   // @ts-ignore
+                  //   lastLogin: response.lastLoging,
+                  // });
                   router.push("/dashboard")
                 } else {
                   toast.error("User not Found")

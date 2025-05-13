@@ -3,7 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner"
 import "./globals.css";
 import { Check } from "lucide-react";
-import { AppContextProvider } from "@/components/context/AppContext";
+
+import LayoutWrapper from "@/components/layout/LayoutWrapper";
+// import { AppContextProvider } from "@/components/context/AppContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +32,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {/* disabled for development.
         < AppContextProvider>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper  
+        </AppContextProvider>  */}
+
+        <LayoutWrapper>
           {children}
-        </AppContextProvider>
-        
+        </LayoutWrapper>
+          
+
         <Toaster
           icons={{
             success: <Check color="#00b700" />,

@@ -29,7 +29,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useAppContext } from "@/components/context/AppContext"
+// import { useAppContext } from "@/components/context/AppContext"
 
 
 export function NavUser({
@@ -42,7 +42,7 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
-  const { userInfo, logout } = useAppContext()
+  // const { userInfo, logout } = useAppContext()
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -53,11 +53,11 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={userInfo?.username} />
+                {/* <AvatarImage src={user.avatar} alt={userInfo?.username} /> */}
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{userInfo?.username}</span>
+                {/* <span className="truncate font-medium">{userInfo?.username}</span> */}
                 <span className="truncate text-xs">{user.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
@@ -104,7 +104,8 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
+            {/* <DropdownMenuItem onClick={logout}> */}
+            <DropdownMenuItem>
               <LogOut />
               Log out
             </DropdownMenuItem>
