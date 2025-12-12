@@ -1,13 +1,19 @@
 "use client"
 
 import { z } from "zod"
+import { stateMap } from "@/utils/stateAbbreviations"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { ScrollArea } from "../ui/scroll-area"
+ 
+import { format } from "date-fns"
+import { CalendarIcon } from "lucide-react"
+
+import { Calendar } from "@/components/ui/calendar"
 
 import { Button } from "../ui/button"
 import { Input } from "../ui/input"
-import { Label } from "../ui/label"
+
 import { 
     Form,
     FormItem,
@@ -17,6 +23,7 @@ import {
     FormDescription,
     FormField
  } from "../ui/form"
+
 import {
     Table,
     TableBody,
@@ -28,7 +35,23 @@ import {
 } from "@/components/ui/table"
 
 import { Separator } from "../ui/separator"
+import {  
+    Popover,
+    PopoverContent,
+    PopoverTrigger, 
+} from "../ui/popover"
 
+import { cn } from "@/lib/utils"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { 
+    Command, 
+    CommandEmpty, 
+    CommandGroup, 
+    CommandInput, 
+    CommandItem, 
+    CommandList } from "../ui/command"
+
+// TODO: Finish the client schema
 const clientSchema = z.object({
     firstname: z
         .string()
@@ -46,7 +69,6 @@ const clientSchema = z.object({
         .regex(/^\d{3}-\d{3}-\d{4}$/, {message: "Invalid phone number format. Example: 123-456-7890"})
     ,
     dateofbirth: z
-        .string()
         .date()
     ,
     email: z
@@ -64,12 +86,15 @@ const clientSchema = z.object({
     ,
     state: z
         .string()
+        .min(2, { message: "Enter a state"})
+        .refine((state) => stateMap.some((item) => item.value === state), { message: "Invalid state selected",})
     ,
     postalcode: z
         .string()
+        .regex(/^\d+$/, { message: "Must be a valid number" })
     ,
     householdsize: z
-        .string(),
+        .number(),
 });
 
 
@@ -95,7 +120,7 @@ export function NewClient({}) {
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
         <div className="w-full max-w-xl px-1">
-            
+
                 <Form {...form}>
                     <form 
                         onSubmit={form.handleSubmit(onSubmit)} 
@@ -147,7 +172,7 @@ export function NewClient({}) {
                                     <Input placeholder="JohnDoe@example.com" {...field} />
                                 </FormControl>
                                 {/* <FormDescription>
-                                    Email address.
+                                    Email address. 
                                 </FormDescription> */}
                                 <FormMessage />
                                 </FormItem>
@@ -181,6 +206,50 @@ export function NewClient({}) {
                                     </FormControl>
                                     <FormDescription>
                                         Client's Sex / Gender.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                                <FormField
+                                control={form.control}
+                                name="dateofbirth"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel>Date of birth</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-[240px] pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                            date > new Date() || date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                        />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormDescription>
+                                        Your date of birth is used to calculate your age.
                                     </FormDescription>
                                     <FormMessage />
                                     </FormItem>
@@ -223,14 +292,15 @@ export function NewClient({}) {
                             name="aStateAbbreviation"
                             render={({ field }) => <StateAbreviationField field={field} />}
                             /> */}
-                            <FormField
+                            {/* TODO: Fix the state abbreviation method below */}
+                           <FormField
                             control={form.control}
                             name="state"
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>State</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="0" {...field} />
+                                    <Input placeholder="Ex. NJ" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
