@@ -1,6 +1,7 @@
 "use client"
 
 import { z } from "zod"
+import { householdMember } from "@/lib/types"
 import { stateMap } from "@/utils/stateAbbreviations"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"
@@ -50,6 +51,9 @@ import {
     CommandInput, 
     CommandItem, 
     CommandList } from "../ui/command"
+import { Label } from "../ui/label"
+import { Checkbox } from "../ui/checkbox"
+import { DataTable } from "./householdDataTable"
 
 // TODO: Finish the client schema
 const clientSchema = z.object({
@@ -97,8 +101,34 @@ const clientSchema = z.object({
         .number(),
 });
 
+const data: householdMember[] = [
+  {
+    firstName: "Novelk",
+    lastName: "Larino",
+    sex: "Male",
+    relationship: "child",
+    age: 16,
+    dob: "nan",
+  },
+  {
+    firstName: "Ayeleen",
+    lastName: "Quick",
+    sex: "Female",
+    relationship: "spouse",
+    age: 24,
+    dob: "nan",
+  },
+]
 
 export function NewClient({}) {
+
+    const [householdMembers, setHouseholdMembers] = useState<householdMember[]>([]);
+    // const [currentHouseholdMember, setCurrentHouseholdMember] = useState<householdMember>({
+    //     firstName: "",
+    //     lastName: "",
+    //     sex: "",
+    //     dob: "",
+    // })
 
     function onSubmit() {
         console.log("")
@@ -118,6 +148,7 @@ export function NewClient({}) {
         },
     })
   return (
+    
     <div className="flex items-center justify-center min-h-screen w-full">
         <div className="w-full max-w-xl px-1">
 
@@ -340,33 +371,59 @@ export function NewClient({}) {
                             )}
                             />
                         </div>
-                        <h2 className="text-xl">{"Qualifying Reasons"}</h2>
                         <Separator/>
-                        <div>
+                        <h2 className="text-xl">{"Programs"}</h2>
+                        <Separator/>
+                        <div className="grid grid-rows-3 flex gap-4">
                             {/* Qualifyin reasons */}
+                            <Label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                                <Checkbox
+                                id="toggle-2"
+                                className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                                />
+                                <div className="grid gap-1.5 font-normal">
+                                <p className="text-sm leading-none font-medium">
+                                    Emergency Food Assistance
+                                </p>
+                                <p className="text-muted-foreground text-sm">
+                                    Food assistance for clients.
+                                </p>
+                                </div>
+                            </Label>
+                            <Label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                                <Checkbox
+                                id="toggle-2"
+                                className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                                />
+                                <div className="grid gap-1.5 font-normal">
+                                <p className="text-sm leading-none font-medium">
+                                    Emergency Utility Assistance
+                                </p>
+                                <p className="text-muted-foreground text-sm">
+                                    Utility assistance for clients.
+                                </p>
+                                </div>
+                            </Label>
+                            <Label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
+                                <Checkbox
+                                id="toggle-2"
+                                className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
+                                />
+                                <div className="grid gap-1.5 font-normal">
+                                <p className="text-sm leading-none font-medium">
+                                    Angel Tree
+                                </p>
+                                <p className="text-muted-foreground text-sm">
+                                    Christmas toys for kids from newborn to 13 years old.
+                                </p>
+                                </div>
+                            </Label>
+                            
                         </div>
                         <h2 className="text-xl">{"Household Members"}</h2>
                         <Separator/>
                         <div>
-                            <Table>
-                                <TableCaption>A list of your recent invoices.</TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                    <TableHead className="w-[100px]">Invoice</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Method</TableHead>
-                                    <TableHead className="text-right">Amount</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow>
-                                    <TableCell className="font-medium">INV001</TableCell>
-                                    <TableCell>Paid</TableCell>
-                                    <TableCell>Credit Card</TableCell>
-                                    <TableCell className="text-right">$250.00</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
+                            <DataTable data={data}/>
                         </div>
                         <div className="grid grid-cols-2 gap-20">
                             <Button type="reset" variant="secondary" onClick={onClear}>Clear</Button>

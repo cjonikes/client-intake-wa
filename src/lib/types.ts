@@ -9,3 +9,13 @@ export interface UserInfo {
     username: string,
     lastLogin: string,
 };
+
+export interface householdMember {
+
+    firstName: string;
+    lastName: string;
+    sex: string;
+    relationship: string;
+    age: Number;
+    dob: string;
+};
