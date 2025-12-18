@@ -37,10 +37,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 
-
+type Props = {
+  data: householdMember[];
+  onAddHouseholdMember: (newMember: householdMember) => void;
+}
 
 export const columns: ColumnDef<householdMember>[] = [
   {
@@ -80,6 +83,13 @@ export const columns: ColumnDef<householdMember>[] = [
     ),
   },
   {
+    accessorKey: "age",
+    header: "Age",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("age")}</div>
+    ),
+  },
+  {
     accessorKey: "sex",
     header: "Sex",
     cell: ({ row }) => (
@@ -94,10 +104,10 @@ export const columns: ColumnDef<householdMember>[] = [
     ),
   },
   {
-    accessorKey: "age",
-    header: "Age",
+    accessorKey: "dob",
+    header: "Date of Birth",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("age")}</div>
+      <div className="capitalize">{row.getValue("dob")}</div>
     ),
   },
   {
@@ -131,7 +141,7 @@ export const columns: ColumnDef<householdMember>[] = [
   },
 ]
 
-export function DataTable({ data }: { data: householdMember[]} ) {
+export function DataTable({ data, onAddHouseholdMember }: Props ) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -139,16 +149,6 @@ export function DataTable({ data }: { data: householdMember[]} ) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-
-  const [currentMember, setCurrentMember] = useState({
-    firstName: "",
-    lastName: "",
-    sex: "Female",
-    relationship: "spouse",
-    age: 0,
-    dob: "",
-  });
-
 
   const table = useReactTable({
     data,
@@ -169,8 +169,69 @@ export function DataTable({ data }: { data: householdMember[]} ) {
     },
   })
 
-  const [isOpen, setIsOpen] = useState(false);
-  
+  // Add new household member dialog components.
+
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<householdMember>({
+      firstName: "",
+      lastName: "",
+      sex: "Female",
+      relationship: "Child",
+      age: 0,
+      dob: "",
+  });
+
+  function calculateAge(dob: string): number {
+    if (!dob) return 0;
+
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === "dob") {
+      const age = calculateAge(value);
+      setForm(prev => ({
+        ...prev,
+        dob: value,
+        age
+      }));
+      return;
+    }
+
+    setForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = () => {
+    onAddHouseholdMember({ ...form });
+    setForm({
+      firstName: "",
+      lastName: "",
+      sex: "",
+      relationship: "",
+      age: 0,
+      dob: "",
+    });
+  };
+
+
   return (
     <div className="w-full">
       <div className="flex items-center py-4 gap-4">
@@ -182,7 +243,86 @@ export function DataTable({ data }: { data: householdMember[]} ) {
           }
           className="max-w-sm"
         />
-        <Button variant="default" > New</Button>
+        {/* New Member dialog trigger */}
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="default">+</Button>
+          </DialogTrigger>
+
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Household Member</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-2 mt-2">
+              <Input
+                name="firstName"
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={handleChange}
+              />
+              <Input
+                name="lastName"
+                placeholder="Last Name"
+                value={form.lastName}
+                onChange={handleChange}
+              />
+              <Select
+                value={form.sex}
+                onValueChange={(value) =>
+                  setForm((prev) => ({ ...prev, sex: value as "Female" | "Male" }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sex" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Male">Male</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={form.relationship}
+                onValueChange={(value) =>
+                  setForm((prev) => ({ ...prev, relationship: value as "Child" | "Spouse" | "Relative" | "Non-Relative" }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Relationship" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Child">Child</SelectItem>
+                  <SelectItem value="Spouse">Spouse</SelectItem>
+                  <SelectItem value="Relative">Relative</SelectItem>
+                  <SelectItem value="Non-Relative">Non-Relative</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                name="dob"
+                type="date"
+                value={form.dob}
+                onChange={handleChange}
+                max={new Date().toISOString().split("T")[0]}
+              />
+               <Input className="invisible"
+                name="age"
+                type="Number"
+                placeholder="Age"
+                value={form.age as number}
+                readOnly
+              />
+              <Button
+                className="w-full mt-2"
+                onClick={() => {
+                  handleSubmit();
+                  setOpen(false);
+                }}
+              >
+                Add
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">

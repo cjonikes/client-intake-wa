@@ -122,20 +122,18 @@ const data: householdMember[] = [
 
 export function NewClient({}) {
 
-    const [householdMembers, setHouseholdMembers] = useState<householdMember[]>([]);
-    // const [currentHouseholdMember, setCurrentHouseholdMember] = useState<householdMember>({
-    //     firstName: "",
-    //     lastName: "",
-    //     sex: "",
-    //     dob: "",
-    // })
-
     function onSubmit() {
         console.log("")
     }
 
     function onClear(){
         console.log("")
+    }
+
+     const [householdMembers, setHouseholdMembers] = useState<householdMember[]>([]);
+
+    const addNewMember = (householdMembers: householdMember) => {
+        setHouseholdMembers(prev => [...prev, { ...householdMembers}]);
     }
 
     const form = useForm<z.infer<typeof clientSchema>>({
@@ -423,7 +421,7 @@ export function NewClient({}) {
                         <h2 className="text-xl">{"Household Members"}</h2>
                         <Separator/>
                         <div>
-                            <DataTable data={data}/>
+                            <DataTable data={householdMembers} onAddHouseholdMember={addNewMember}/>
                         </div>
                         <div className="grid grid-cols-2 gap-20">
                             <Button type="reset" variant="secondary" onClick={onClear}>Clear</Button>
