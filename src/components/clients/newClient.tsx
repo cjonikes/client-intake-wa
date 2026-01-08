@@ -148,7 +148,7 @@ export function NewClient({}) {
   return (
     
     <div className="flex items-center justify-center min-h-screen w-full">
-        <div className="w-full max-w-xl px-1">
+        <div className="">
 
                 <Form {...form}>
                     <form 

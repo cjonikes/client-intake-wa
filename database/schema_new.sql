@@ -1,125 +1,156 @@
-CREATE SCHEMA IF NOT EXISTS "public";
+CREATE SCHEMA IF NOT EXISTS public;
 
-CREATE TABLE "public".userinfo (
-    userinfoid      serial       NOT NULL,
-    firstname       varchar(255) NOT NULL,
-    lastname        varchar(255) NOT NULL,
-    phonenumber     varchar(20)  NOT NULL,
-    dateofbirth     date         NOT NULL,
-    dateofhire      date         NOT NULL,
-    sex             varchar(20)  NOT NULL,
-    CONSTRAINT user_info_id_pkey PRIMARY KEY (userinfoid)
-);
--- Sequence for userinfoid
-CREATE SEQUENCE public.userinfo_userinfoid_seq START 1;
+-- =========================
+-- USERS
+-- =========================
 
-CREATE TABLE "public"."user" (
-    userid      serial NOT NULL,
-    userinfoid  integer NOT NULL,
-    email       varchar(255) NOT NULL,
-    username    varchar(255) NOT NULL,
-    passwd      varchar(255) NOT NULL,
-    usertype    varchar DEFAULT 'Employee'::character varying NOT NULL,
-    lastlogin   TIMESTAMPZ NOT NULL DEFAULT NOW(),
-    isActive    BOOLEAN DEFAULT TRUE NOT NULL,
-    CONSTRAINT user_id_pkey PRIMARY KEY( userid ),
-    CONSTRAINT unique_email_address UNIQUE ( email ),
-    CONSTRAINT user_info_id_fkey FOREIGN KEY ( userinfoid ) REFERENCES "public".userinfo( userinfoid )
-);
--- Sequence for userid
-CREATE SEQUENCE public.user_userid_seq START 1;
-
-CREATE TABLE "public".activesessions (
-    sessionid   varchar(128)    PRIMARY KEY,
-    userid      integer         NOT NULL,
-    createdat   TIMESTAMPZ NOT NULL DEFAULT NOW(),
-    CONSTRAINT user_session_id_fkey FOREIGN KEY ( userid ) REFERENCES "public"."user"( userid )
+CREATE TABLE public.user_info (
+    user_info_id   SERIAL PRIMARY KEY,
+    first_name     VARCHAR(255) NOT NULL,
+    last_name      VARCHAR(255) NOT NULL,
+    phone_number   VARCHAR(20),
+    date_of_birth  DATE NOT NULL,
+    date_of_hire   DATE NOT NULL,
+    sex            CHAR(1) NOT NULL CHECK (sex IN ('M', 'F', 'O'))
 );
 
-CREATE TABLE "public".householdmembers (
-    householdmemberid     serial        NOT NULL,
-    firstname             varchar(255)  NOT NULL,
-    lastname              varchar(255)  NOT NULL,
-    dateofbirth           date          NOT NULL,
-    sex                   varchar(20)   NOT NULL,
-    CONSTRAINT household_member_id_pkey PRIMARY KEY  ( householdmemberid )
-);
--- Sequence for householdmemberid
-CREATE SEQUENCE public.householdmembers_householdmemberid_seq START 1;
-
-CREATE TABLE "public".clientinfo (
-    clientinfoid    serial          NOT NULL,
-    firstname       varchar(255)    NOT NULL,
-    lastname        varchar(255)    NOT NULL,
-    phonenumber     varchar(20)     NOT NULL,
-    dateofbirth     date            NOT NULL,
-    dateadded       date            NOT NULL,
-    email           varchar(255)    NOT NULL,
-    sex             varchar(20)     NOT NULL,
-    CONSTRAINT client_info_id_pkey  PRIMARY KEY ( clientinfoid )
-);
--- Sequence for clientinfoid
-CREATE SEQUENCE public.clientinfo_clientinfoid_seq START 1;
-
-CREATE TABLE "public".addressinfo (
-    addressid       serial          NOT NULL,
-    clientid        integer         NOT NULL,
-    street          varchar(255)    NOT NULL,
-    city            varchar(255)    NOT NULL,
-    state           varchar(50)     NOT NULL,
-    postalcode      varchar(20)     NOT NULL,
-    CONSTRAINT address_info_id_pkey PRIMARY KEY ( addressid ),
-    CONSTRAINT fkey_client_info_id_fkey FOREIGN KEY ( clientid ) REFERENCES "public".clientinfo( clientinfoid ) ON DELETE CASCADE
-);
--- Sequence for addressid
-CREATE SEQUENCE public.addressinfo_addressid_seq START 1;
-
-CREATE TABLE "public".household (
-    clientinfoid      integer     NOT NULL,
-    householdmemberid integer     NOT NULL,
-    CONSTRAINT household_id_pkey PRIMARY KEY ( clientinfoid, householdmemberid ),
-    CONSTRAINT client_info_id_fkey FOREIGN KEY ( clientinfoid ) REFERENCES "public".clientinfo( clientinfoid ) ON DELETE CASCADE,
-    CONSTRAINT household_member_id_fkey FOREIGN KEY ( householdmemberid ) REFERENCES "public".householdmembers( householdmemberid ) ON DELETE CASCADE
+CREATE TABLE public.users (
+    user_id        SERIAL PRIMARY KEY,
+    user_info_id   INTEGER NOT NULL UNIQUE,
+    email          VARCHAR(255) NOT NULL UNIQUE,
+    username       VARCHAR(255) NOT NULL UNIQUE,
+    password_hash  VARCHAR(255) NOT NULL,
+    user_type      VARCHAR(50) NOT NULL DEFAULT 'employee',
+    last_login     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_active      BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT fk_user_user_info
+        FOREIGN KEY (user_info_id)
+        REFERENCES public.user_info (user_info_id)
+        ON DELETE CASCADE
 );
 
-CREATE TABLE "public".servicecategory (
-    categoryname    varchar(255)    NOT NULL,
-    CONSTRAINT category_name_pkey PRIMARY KEY ( categoryname )
+CREATE TABLE public.active_sessions (
+    session_id   VARCHAR(128) PRIMARY KEY,
+    user_id      INTEGER NOT NULL,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT fk_session_user
+        FOREIGN KEY (user_id)
+        REFERENCES public.users (user_id)
+        ON DELETE CASCADE
 );
--- Sequence for categoryname
-CREATE SEQUENCE public.servicecategory_categoryname_seq START 1;
 
-CREATE TABLE "public".services (
-    serviceid       serial          NOT NULL,
-    servicename     varchar(255)    NOT NULL,
-    servicedate     date            NOT NULL,
-    amount          varchar(255),
-    categoryname    varchar(255)    NOT NULL,
-    CONSTRAINT service_name_pkey PRIMARY KEY ( servicename ),
-    CONSTRAINT service_category_fkey FOREIGN KEY ( categoryname ) REFERENCES "public".servicecategory( categoryname )
+-- =========================
+-- CLIENTS
+-- =========================
+
+CREATE TABLE public.clients (
+    client_id      SERIAL PRIMARY KEY,
+    first_name     VARCHAR(255) NOT NULL,
+    last_name      VARCHAR(255) NOT NULL,
+    sex            CHAR(1) NOT NULL CHECK (sex IN ('M', 'F', 'O')),
+    date_of_birth  DATE NOT NULL,
+    date_added     DATE NOT NULL DEFAULT CURRENT_DATE
 );
--- Sequence for serviceid
-CREATE SEQUENCE public.services_serviceid_seq START 1;
 
-CREATE TABLE "public".appointments (
-    appointmentid       serial      NOT NULL,
-    appointmentdate     date        NOT NULL,
-    inquirydate         date        NOT NULL,
-    revieweddate        date,
-    status              varchar(20) NOT NULL,
-    clientinfoid        integer     NOT NULL,
-    userinfoid          integer     NOT NULL,
-    CONSTRAINT appointment_id_pkey    PRIMARY KEY ( appointmentid ),
-    CONSTRAINT fk_client_info_id FOREIGN KEY ( clientinfoid ) REFERENCES "public".clientinfo( clientinfoid ),
-    CONSTRAINT fk_user_info_id FOREIGN KEY ( userinfoid ) REFERENCES "public".userinfo( userinfoid )
+CREATE TABLE public.client_info (
+    client_info_id SERIAL PRIMARY KEY,
+    client_id      INTEGER NOT NULL UNIQUE,
+    phone_number   VARCHAR(20),
+    email          VARCHAR(255),
+    CONSTRAINT fk_client_info_client
+        FOREIGN KEY (client_id)
+        REFERENCES public.clients (client_id)
+        ON DELETE CASCADE
 );
--- Sequence for appointmentid
-CREATE SEQUENCE public.appointments_appointmentid_seq START 1;
 
-CREATE TABLE "public".appointmentservices (
-    appointmentid       integer          NOT NULL,
-    servicename         varchar(255)     NOT NULL,
-    CONSTRAINT appointment_services_pkey PRIMARY KEY ( appointmentid, servicename ),
-    CONSTRAINT appointment_id_fkey  FOREIGN KEY ( appointmentid ) REFERENCES "public".appointments( appointmentid ),
-    CONSTRAINT service_id_fkey FOREIGN KEY ( servicename ) REFERENCES "public".services( servicename )
+-- =========================
+-- ADDRESSES
+-- =========================
+
+CREATE TABLE public.addresses (
+    address_id     SERIAL PRIMARY KEY,
+    client_info_id INTEGER NOT NULL,
+    street         VARCHAR(255) NOT NULL,
+    city           VARCHAR(255) NOT NULL,
+    state          VARCHAR(50) NOT NULL,
+    postal_code    VARCHAR(20) NOT NULL,
+    CONSTRAINT fk_address_client_info
+        FOREIGN KEY (client_info_id)
+        REFERENCES public.client_info (client_info_id)
+        ON DELETE CASCADE
+);
+
+-- =========================
+-- HOUSEHOLDS
+-- =========================
+
+CREATE TABLE public.households (
+    household_id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE public.household_members (
+    client_id     INTEGER NOT NULL,
+    household_id  INTEGER NOT NULL,
+    PRIMARY KEY (client_id, household_id),
+    CONSTRAINT fk_household_client
+        FOREIGN KEY (client_id)
+        REFERENCES public.clients (client_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_household
+        FOREIGN KEY (household_id)
+        REFERENCES public.households (household_id)
+        ON DELETE CASCADE
+);
+
+-- =========================
+-- SERVICES
+-- =========================
+
+CREATE TABLE public.service_categories (
+    category_id   SERIAL PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE public.services (
+    service_id    SERIAL PRIMARY KEY,
+    service_name  VARCHAR(255) NOT NULL UNIQUE,
+    service_date  DATE NOT NULL,
+    amount        NUMERIC(10,2),
+    category_id   INTEGER NOT NULL,
+    CONSTRAINT fk_service_category
+        FOREIGN KEY (category_id)
+        REFERENCES public.service_categories (category_id)
+);
+
+-- =========================
+-- APPOINTMENTS
+-- =========================
+
+CREATE TABLE public.appointments (
+    appointment_id   SERIAL PRIMARY KEY,
+    appointment_date DATE NOT NULL,
+    inquiry_date     DATE NOT NULL,
+    reviewed_date    DATE,
+    status           VARCHAR(20) NOT NULL,
+    client_id        INTEGER NOT NULL,
+    user_info_id     INTEGER NOT NULL,
+    CONSTRAINT fk_appointment_client
+        FOREIGN KEY (client_id)
+        REFERENCES public.clients (client_id),
+    CONSTRAINT fk_appointment_user_info
+        FOREIGN KEY (user_info_id)
+        REFERENCES public.user_info (user_info_id)
+);
+
+CREATE TABLE public.appointment_services (
+    appointment_id INTEGER NOT NULL,
+    service_id     INTEGER NOT NULL,
+    PRIMARY KEY (appointment_id, service_id),
+    CONSTRAINT fk_appointment_service_appointment
+        FOREIGN KEY (appointment_id)
+        REFERENCES public.appointments (appointment_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_appointment_service_service
+        FOREIGN KEY (service_id)
+        REFERENCES public.services (service_id)
 );
